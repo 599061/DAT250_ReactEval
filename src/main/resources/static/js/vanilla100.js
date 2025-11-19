@@ -80,6 +80,9 @@ function renderAll() {
 // ---------- Event handling (delegated) ----------
 grid.addEventListener("click", (e) => {
     const bulkBtn = e.target.closest("button[data-bulk]");
+
+    const start = performance.now();
+
     if (bulkBtn) {
         const kind = bulkBtn.dataset.bulk;
         if (kind === "inc1") {
@@ -109,6 +112,9 @@ grid.addEventListener("click", (e) => {
 
     renderCell(index);
     renderStats();
+
+    const end = performance.now();
+    console.log(`[vanilla] ${btn.dataset.bulk || btn.dataset.action} took ${(end - start).toFixed(2)} ms`);
 });
 
 // initial paint
