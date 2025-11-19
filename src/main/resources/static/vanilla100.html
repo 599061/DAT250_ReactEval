@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/base.css" />
+    <title>Vanilla JS Counters</title>
+</head>
+<body>
+<div class="wrap">
+    <div style="margin:0 0 10px"><a class="back" href="/index.html">← Back</a></div>
+    <h1 style="margin:0 0 16px">Vanilla JS: 40k Counters</h1>
+
+    <div class="grid">
+        <div class="card layout-1" data-counter="A" data-initial="0">
+            <div class="top"><div class="title">Counter A</div><div class="value" aria-live="polite">0</div></div>
+            <div class="btns">
+                <button class="primary" data-action="inc">+1</button>
+                <button data-action="dec">-1</button>
+                <button data-action="inc10">+10</button>
+                <button data-action="reset">Reset</button>
+            </div>
+        </div>
+
+        <div class="card layout-2" data-counter="B" data-initial="5">
+            <div class="top"><div class="title">Counter B</div><div class="value" aria-live="polite">5</div></div>
+            <div class="btns">
+                <button class="primary" data-action="inc">+1</button>
+                <button data-action="dec">-1</button>
+                <button data-action="inc10">+10</button>
+                <button data-action="reset">Reset</button>
+            </div>
+        </div>
+
+        <div class="card layout-3" data-counter="C" data-initial="10">
+            <div class="top"><div class="title">Counter C</div><div class="value" aria-live="polite">10</div></div>
+            <div class="btns">
+                <button class="primary" data-action="inc">+1</button>
+                <button data-action="dec">-1</button>
+                <button data-action="inc10">+10</button>
+                <button data-action="reset">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/vanilla100.js"></script>
+</body>
+</html>
