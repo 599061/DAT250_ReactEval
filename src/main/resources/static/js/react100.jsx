@@ -1,38 +1,50 @@
-// react.jsx – 100x100 counters
 const { useReducer, useMemo, useCallback, memo } = React;
 
 const GRID_SIZE = 150;
-const TOTAL = GRID_SIZE * GRID_SIZE;
 
-// ---------------- State + reducer ----------------
-
+// ---- state as 2D array: values[row][col] ----
 const initial = {
-    values: Array(TOTAL).fill(0),
+    values: Array.from({ length: GRID_SIZE }, () =>
+        Array(GRID_SIZE).fill(0)
+    ),
 };
 
 function reducer(state, action) {
     switch (action.type) {
         case "UPDATE_ONE": {
             const { index, delta = 0, reset = false } = action;
-            const next = state.values.slice();
-            next[index] = reset ? 0 : next[index] + delta;
-            return { values: next };
+            const row = Math.floor(index / GRID_SIZE);
+            const col = index % GRID_SIZE;
+
+            // copy outer array and the changed row
+            const valuesCopy = state.values.slice();
+            const rowCopy = valuesCopy[row].slice();
+
+            rowCopy[col] = reset ? 0 : rowCopy[col] + delta;
+            valuesCopy[row] = rowCopy;
+
+            return { values: valuesCopy };
         }
         case "INC_ALL": {
             const { by = 1 } = action;
-            return { values: state.values.map((v) => v + by) };
+            return {
+                values: state.values.map((row) => row.map((v) => v + by)),
+            };
         }
         case "RESET_ALL": {
-            return { values: Array(TOTAL).fill(0) };
+            return {
+                values: Array.from({ length: GRID_SIZE }, () =>
+                    Array(GRID_SIZE).fill(0)
+                ),
+            };
         }
         default:
             return state;
     }
 }
 
-// ---------------- Components ----------------
+// ---- Components ----
 
-// One counter cell (memoized so only changed cells re-render)
 const CounterCard = memo(function CounterCard({ index, value, onAction }) {
     return (
         <div className="card">
@@ -59,14 +71,37 @@ const CounterCard = memo(function CounterCard({ index, value, onAction }) {
     );
 });
 
-function StatsBar({ values, onIncAll, onResetAll }) {
-    const sum = useMemo(
-        () => values.reduce((a, b) => a + b, 0),
-        [values]
+// One row of counters (memoized, so only the row with a changed value re-renders)
+const GridRow = memo(function GridRow({ rowIndex, rowValues, onAction }) {
+    return (
+        <>
+            {rowValues.map((value, colIndex) => {
+                const index = rowIndex * GRID_SIZE + colIndex;
+                return (
+                    <CounterCard
+                        key={index}
+                        index={index}
+                        value={value}
+                        onAction={onAction}
+                    />
+                );
+            })}
+        </>
     );
+});
+
+function StatsBar({ values, onIncAll, onResetAll }) {
+    const sum = useMemo(() => {
+        return values.reduce(
+            (outerAcc, row) => outerAcc + row.reduce((a, b) => a + b, 0),
+            0
+        );
+    }, [values]);
+
+    const totalCount = GRID_SIZE * GRID_SIZE;
     const avg = useMemo(
-        () => (values.length ? sum / values.length : 0),
-        [sum, values.length]
+        () => (totalCount ? sum / totalCount : 0),
+        [sum, totalCount]
     );
 
     return (
@@ -95,7 +130,6 @@ function App() {
     const [state, dispatch] = useReducer(reducer, initial);
     const { values } = state;
 
-    // Single stable callback shared by all cells
     const handleAction = useCallback(
         (type, index, by = 0, reset = false) => {
             if (type === "UPDATE_ONE") {
@@ -109,6 +143,7 @@ function App() {
         (by) => dispatch({ type: "INC_ALL", by }),
         []
     );
+
     const handleResetAll = useCallback(
         () => dispatch({ type: "RESET_ALL" }),
         []
@@ -121,11 +156,11 @@ function App() {
                 onIncAll={handleIncAll}
                 onResetAll={handleResetAll}
             />
-            {values.map((value, i) => (
-                <CounterCard
-                    key={i}
-                    index={i}
-                    value={value}
+            {values.map((rowValues, rowIndex) => (
+                <GridRow
+                    key={rowIndex}
+                    rowIndex={rowIndex}
+                    rowValues={rowValues}
                     onAction={handleAction}
                 />
             ))}

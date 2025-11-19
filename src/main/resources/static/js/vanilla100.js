@@ -1,6 +1,6 @@
 // vanilla.js – 100x100 counters
 
-const GRID_SIZE = 200;
+const GRID_SIZE = 150;
 const TOTAL = GRID_SIZE * GRID_SIZE;
 
 const state = {
