@@ -133,6 +133,7 @@ function App() {
     const handleAction = useCallback(
         (type, index, by = 0, reset = false) => {
             if (type === "UPDATE_ONE") {
+
                 dispatch({ type, index, delta: by, reset });
             }
         },
@@ -166,6 +167,7 @@ function App() {
             ))}
         </div>
     );
+
 }
 
 const root = ReactDOM.createRoot(document.getElementById("app"));
