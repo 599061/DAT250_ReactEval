@@ -1,4 +1,4 @@
-const { useReducer, useCallback, memo } = React;
+const { useReducer, useMemo, useCallback, memo } = React;
 
 const GRID_SIZE = 150;
 
@@ -90,12 +90,30 @@ const GridRow = memo(function GridRow({ rowIndex, rowValues, onAction }) {
     );
 });
 
-function StatsBar({ onIncAll, onResetAll }) {
+function StatsBar({ values, onIncAll, onResetAll }) {
+    const sum = useMemo(() => {
+        return values.reduce(
+            (outerAcc, row) => outerAcc + row.reduce((a, b) => a + b, 0),
+            0
+        );
+    }, [values]);
+
+    const totalCount = GRID_SIZE * GRID_SIZE;
+    const avg = useMemo(
+        () => (totalCount ? sum / totalCount : 0),
+        [sum, totalCount]
+    );
 
     return (
         <div className="card" style={{ gridColumn: "1 / -1" }}>
             <div className="top">
-                <div className="title">Controls</div>
+                <div className="title">Stats</div>
+                <div className="value" aria-live="polite">
+                    {sum}{" "}
+                    <span style={{ fontSize: 16, opacity: 0.7 }}>
+            (sum) • avg {avg.toFixed(1)}
+          </span>
+                </div>
             </div>
             <div className="btns">
                 <button className="primary" onClick={() => onIncAll(1)}>
@@ -135,6 +153,7 @@ function App() {
     return (
         <div className="grid">
             <StatsBar
+                values={values}
                 onIncAll={handleIncAll}
                 onResetAll={handleResetAll}
             />
